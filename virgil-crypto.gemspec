@@ -9,9 +9,9 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Dmitriy Dudkin"]
   spec.email         = ["dudkin.dmitriy@gmail.com"]
 
-  spec.summary       = %q{TODO: Write a short summary, because Rubygems requires one.}
-  spec.description   = %q{TODO: Write a longer description or delete this line.}
-  spec.homepage      = "TODO: Put your gem's website or public repo URL here."
+  spec.summary       = %q{Write a short summary, because Rubygems requires one.}
+  spec.description   = %q{Write a longer description or delete this line.}
+  spec.homepage      = "http://github.com/VirgilSecurity/virgil-crypto-ruby"
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
   # to allow pushing to a single host or delete this section to allow pushing to any host.
@@ -25,7 +25,36 @@ Gem::Specification.new do |spec|
   spec.bindir        = "exe"
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
+  spec.extensions = ['ext/native/extconf.rb']
 
+  spec.add_development_dependency "rake-compiler", "~> 1.0"
   spec.add_development_dependency "bundler", "~> 1.12"
   spec.add_development_dependency "rake", "~> 10.0"
+  spec.add_development_dependency "minitest-reporters", "~> 1.1"
+
+  current_dir = File.expand_path(File.dirname(__FILE__))
+  # get an array of submodule dirs by executing 'pwd' inside each submodule
+  `git submodule --quiet foreach pwd`.split($\).each do |submodule_path|
+    # for each submodule, change working directory to that submodule
+    Dir.chdir(submodule_path) do
+
+      # issue git ls-files in submodule's directory
+      submodule_files = `git ls-files -z`.split("\x0")
+
+      # prepend the submodule path to create absolute file paths
+      submodule_files_fullpaths = submodule_files.map do |filename|
+        "#{submodule_path}/#{filename}"
+      end
+
+      # remove leading path parts to get paths relative to the gem's root dir
+      # (this assumes, that the gemspec resides in the gem's root dir)
+      submodule_files_paths = submodule_files_fullpaths.map do |filename|
+        filename.gsub "#{current_dir}/", ""
+      end
+
+
+      # add relative paths to gem.files
+      spec.files += submodule_files_paths
+    end
+  end
 end
