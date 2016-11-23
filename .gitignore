@@ -8,3 +8,4 @@
 /spec/reports/
 /tmp/
 /lib/virgil/crypto/native.so
+*.gem

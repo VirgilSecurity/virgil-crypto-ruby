@@ -12,6 +12,7 @@ INSTALL_DIR = File.join(LIB_DIR, 'virgil', 'crypto')
 CMAKE_COMMAND = [
   CMAKE,
   '-DCMAKE_BUILD_TYPE=Release',
+  "-DRUBY_VERSION=#{RUBY_VERSION}",
   '-DRUBY_LIB_NAME=native',
   '-DSWIG_MODULE_NAME=\"virgil::crypto::native\"',
   '-DCMAKE_SWIG_FLAGS=-autorename',
