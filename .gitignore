@@ -9,3 +9,5 @@
 /tmp/
 /lib/virgil/crypto/native.so
 *.gem
+.idea
+*.iml
