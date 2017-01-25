@@ -45,7 +45,7 @@ class NativeCrypto
   end
 
   def self.required_library_version
-    Virgil::Crypto::VERSION.gsub(/\D\d+$/, "")
+    Virgil::Crypto::VERSION.sub(/\D\d+$/, "")
   end
 
   def self.required_library_os
@@ -69,7 +69,7 @@ class NativeCrypto
       end
     end
 
-      library_folder_name = library_path.gsub(".tgz", "")
+      library_folder_name = library_path.sub(".tgz", "")
 
       system("tar xvf #{archive_path} -C tmp/")
       system("cp tmp/#{library_folder_name}/lib/virgil_crypto_ruby.so #{lib_folder_path}/virgil/crypto/native.so")
