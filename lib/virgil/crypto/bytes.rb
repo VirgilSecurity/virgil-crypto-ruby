@@ -52,6 +52,10 @@ module Virgil
       def to_json(*a)
         Base64.strict_encode64(to_s).to_json(*a)
       end
+
+      def to_base64
+        Base64.strict_encode64(to_s)
+      end
     end
   end
 end
