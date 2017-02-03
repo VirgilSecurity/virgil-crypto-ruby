@@ -38,16 +38,20 @@ module Virgil
     class StreamSignerTest < Minitest::Test
       def test_signs_and_verifies_data
         raw_data = Bytes.from_string("test")
+
         key_pair = Native::VirgilKeyPair.generate(
           Native::VirgilKeyPair::Type_FAST_EC_ED25519
         )
-        input_stream = StringIO.new(raw_data.to_s)
-        source = VirgilStreamDataSource.new(input_stream)
+
+        # Create Signer
         signer = Native::VirgilStreamSigner.new
+
+        # Sign
+        source = VirgilStreamDataSource.new(StringIO.new(raw_data.to_s))
         signature = signer.sign(source, key_pair.private_key)
-        input_stream = StringIO.new(raw_data.to_s)
-        source = VirgilStreamDataSource.new(input_stream)
-        signer = VirgilStreamSigner.new()
+
+        # Verify
+        source = VirgilStreamDataSource.new(StringIO.new(raw_data.to_s))
         is_valid = signer.verify(source, signature, key_pair.public_key)
         assert(is_valid)
       end

@@ -6,13 +6,13 @@ require 'virgil/crypto/version'
 Gem::Specification.new do |spec|
   spec.name          = "virgil-crypto"
   spec.version       = Virgil::Crypto::VERSION
-  spec.authors       = ["Dmitriy Dudkin"]
-  spec.email         = ["dudkin.dmitriy@gmail.com"]
+  spec.authors       = ["Dmitriy Dudkin", "Sergey Seroshtan"]
+  spec.email         = ["dudkin.dmitriy@gmail.com", "sseroshtan@virgilsecurity.com"]
 
   spec.summary       = %q{Virgil Crypto library wrapper}
   spec.description   = %q{Virgil Crypto library wrapper}
   spec.homepage      = "http://github.com/VirgilSecurity/virgil-crypto-ruby"
-  spec.licenses      = ['Nonstandard']
+  spec.licenses      = ['BSD-3-Clause']
 
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
   spec.bindir        = "exe"

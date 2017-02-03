@@ -34,20 +34,21 @@
 
 module Virgil
   module Crypto
-    class VirgilStreamDataSource < Virgil::Crypto::Native::VirgilDataSource
+    class VirgilStreamDataSource < Native::VirgilDataSource
       attr_reader :stream, :buffer_size
 
       def initialize(stream, buffer_size = 1024)
         @stream = stream
         @buffer_size = buffer_size
+        super()
       end
 
       def has_data
-        !steam.closed? && !stream.eof?
+        !stream.closed_read? && !stream.eof?
       end
 
       def read
-        stream.read(buffer_size)
+        Bytes.from_string(stream.read(buffer_size))
       end
     end
   end

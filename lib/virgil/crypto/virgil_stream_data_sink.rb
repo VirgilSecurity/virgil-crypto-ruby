@@ -34,19 +34,20 @@
 
 module Virgil
   module Crypto
-    class VirgilStreamDataSink < Virgil::Crypto::Native::VirgilDataSink
+    class VirgilStreamDataSink < Native::VirgilDataSink
       attr_reader :stream
 
       def initialize(stream)
         @stream = stream
+        super()
       end
 
       def is_good
-        !steam.closed? && !stream.eof?
+        !stream.closed_write?
       end
 
       def write(data)
-        stream.write(Bytes.new(data))
+        stream.write(data.pack('c*'))
       end
     end
   end
