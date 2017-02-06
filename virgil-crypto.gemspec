@@ -1,7 +1,11 @@
 # coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
+require 'virgil/os'
 require 'virgil/crypto/version'
+
+abort "Windows is not supported yet." if OS.windows?
+
 
 Gem::Specification.new do |spec|
   spec.name          = "virgil-crypto"
@@ -18,14 +22,13 @@ Gem::Specification.new do |spec|
   spec.bindir        = "exe"
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
-  spec.extensions = ['ext/native/extconf.rb']
-
-  spec.add_development_dependency "rake-compiler", "~> 1.0"
+  spec.extensions = ['ext/rakefile.rb']
   spec.add_development_dependency "bundler", "~> 1.12"
   spec.add_development_dependency "rake", "~> 10.0"
   spec.add_development_dependency "minitest-reporters", "~> 1.1"
 
   current_dir = File.expand_path(File.dirname(__FILE__))
+
   # get an array of submodule dirs by executing 'pwd' inside each submodule
   `git submodule --quiet foreach pwd`.split($\).each do |submodule_path|
     # for each submodule, change working directory to that submodule
@@ -51,3 +54,4 @@ Gem::Specification.new do |spec|
     end
   end
 end
+

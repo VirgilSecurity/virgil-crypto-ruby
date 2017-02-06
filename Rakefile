@@ -2,7 +2,6 @@ require "bundler/gem_tasks"
 require 'rake/extensiontask'
 require 'rake/testtask'
 
-Rake::ExtensionTask.new('native')
 
 Rake::TestTask.new do |t|
     t.libs << 'test'

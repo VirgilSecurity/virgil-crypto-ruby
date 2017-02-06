@@ -1,5 +1,4 @@
 require "virgil/crypto/version"
-
 module Virgil
   module Crypto
     autoload :Virgil_crypto_ruby, 'virgil/crypto/virgil_crypto_ruby'

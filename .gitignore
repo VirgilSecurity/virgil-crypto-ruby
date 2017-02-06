@@ -10,3 +10,5 @@
 /lib/virgil/crypto/native.so
 *.gem
 build*/
+.idea
+*.iml
