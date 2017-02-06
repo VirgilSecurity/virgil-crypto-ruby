@@ -7,7 +7,7 @@
 /pkg/
 /spec/reports/
 /tmp/
-/lib/virgil/crypto/native.so
+lib/virgil/crypto/virgil_crypto_ruby.so
 *.gem
 build*/
 .idea
