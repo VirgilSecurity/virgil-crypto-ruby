@@ -3,6 +3,7 @@ require 'virgil/os'
 require 'net/http'
 require 'open-uri'
 require 'zlib'
+require 'fileutils'
 class NativeCrypto
   LIBRARY_LIST_URL = "https://cdn.virgilsecurity.com/virgil-crypto/ruby/"
 
@@ -18,8 +19,11 @@ class NativeCrypto
     abort "Can't download native library. Please try later." unless body
 
     href_template = /virgil-crypto-#{required_library_version}-ruby-2.0-#{required_library_os}[^\.]+\.tgz/
-    body.match(href_template)
+    # body.match(href_template)
     href_list = body.scan href_template
+    if href_list.last.nil?
+      abort "Sorry. Correct version of Native Library is missing."
+    end
     href_list.last
 
   end
@@ -45,7 +49,10 @@ class NativeCrypto
   end
 
   def self.required_library_version
-    Virgil::Crypto::VERSION.sub(/\D\d+$/, "")
+    Virgil::Crypto::VERSION.scan(/\d+\.\d+\.\d+(\D+\d*)$/) do |postfix|
+      return Virgil::Crypto::VERSION.sub(postfix.last, '')
+    end
+    return ''
   end
 
   def self.required_library_os
@@ -57,7 +64,7 @@ class NativeCrypto
   end
 
   def self.download_library(library_path)
-    system("mkdir tmp")
+    FileUtils.mkdir_p 'tmp'
     archive_path = "tmp/native_library.tar.gz"
     open(archive_path, 'w') do |local_file|
       begin
@@ -72,8 +79,8 @@ class NativeCrypto
       library_folder_name = library_path.sub(".tgz", "")
 
       system("tar xvf #{archive_path} -C tmp/")
-      system("cp tmp/#{library_folder_name}/lib/virgil_crypto_ruby.so #{lib_folder_path}/virgil/crypto/native.so")
-      system("rm -rf tmp/*")
+      system("cp tmp/#{library_folder_name}/lib/virgil_crypto_ruby.so #{lib_folder_path}/virgil/crypto/virgil_crypto_ruby.so")
+      FileUtils.rm_rf 'tmp'
   end
 
   def self.lib_folder_path
