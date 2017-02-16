@@ -25,7 +25,9 @@ namespace :native_sources do
         cd 'build'
 
         CMAKE = find_executable "cmake"
+
         abort "cmake >= 3.2 is required" unless CMAKE
+        abort "swig is required" unless find_executable "swig"
 
         SCRIPT_DIR = File.expand_path('../', __FILE__)
         SRC_DIR = File.join(SCRIPT_DIR, 'ext/native/src')

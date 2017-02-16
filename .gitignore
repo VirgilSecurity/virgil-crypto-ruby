@@ -8,6 +8,7 @@
 /spec/reports/
 /tmp/
 lib/virgil/crypto/virgil_crypto_ruby.so
+lib/virgil/crypto/virgil_crypto_ruby.bundle
 *.gem
 build*/
 .idea
