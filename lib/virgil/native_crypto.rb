@@ -17,7 +17,7 @@ class NativeCrypto
   end
 
 
-  def self.get_library_path 
+  def self.get_library_path
     body = get_https(LIBRARY_LIST_URL)
     raise "Can't download native library. Please try later." unless body
     ruby_version = RUBY_VERSION.sub(/\.[^\.]+$/, "")
