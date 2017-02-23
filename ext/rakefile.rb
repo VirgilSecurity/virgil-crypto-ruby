@@ -6,7 +6,7 @@ task :default do
   require 'virgil/native_crypto'
   require 'mkmf'
 
-  abort "Sorry, we don't support Ruby with version 2.0! Please Upgrade you Ruby version." if RUBY_VERSION =~ /2\.0\./
+  abort "Sorry, we don't support Ruby with version 2.0! Please Upgrade you Ruby version." if RUBY_VERSION =~ /^2\.0\./
 
   begin
     NativeCrypto.load_library
