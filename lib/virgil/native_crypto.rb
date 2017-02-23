@@ -10,23 +10,10 @@ class NativeCrypto
   LIBRARY_LIST_URL = "https://cdn.virgilsecurity.com/virgil-crypto/ruby/"
 
   def self.load_library
-    #
-    #
-    # library_file_name = 'virgil_crypto_ruby.'
-    # library_file_name += required_library_os == 'linux' ? 'os' : 'bundle'
-    #
-    # crypto_folder_path = "#{lib_path}/virgil/crypto"
-    #
-    #
-    #   download_library(get_library_path, library_file_name, crypto_folder_path)
-
-#
-#     rake = Rake.application
-#     rake.init
-# # you can import addition *.rake files
-#     rake.add_import '../Rakefile'
-#     rake.load_rakefile
-#     rake['native_sources:run_cmake'].invoke()
+    library_file_name = 'virgil_crypto_ruby.'
+    library_file_name += required_library_os == 'linux' ? 'os' : 'bundle'
+    crypto_folder_path = "#{lib_path}/virgil/crypto"
+    download_library(get_library_path, library_file_name, crypto_folder_path)
   end
 
 
@@ -82,26 +69,26 @@ class NativeCrypto
 
   def self.download_library(source_path, file_name, folder_path)
 
-      system('mkdir -p tmp')
-      archive_path = 'tmp/native_library.tar.gz'
+    system('mkdir -p tmp')
+    archive_path = 'tmp/native_library.tar.gz'
 
-      open(archive_path, 'w') do |local_file|
-        begin
-          open(LIBRARY_LIST_URL + source_path) do |remote_file|
-            local_file.write(Zlib::GzipReader.new(remote_file).read)
-          end
-        rescue Exception => e
-          abort "Can't download native library by reason: #{e}"
+    open(archive_path, 'w') do |local_file|
+      begin
+        open(LIBRARY_LIST_URL + source_path) do |remote_file|
+          local_file.write(Zlib::GzipReader.new(remote_file).read)
         end
+      rescue Exception => e
+        abort "Can't download native library by reason: #{e}"
       end
+    end
 
-      library_folder_name = source_path.sub('.tgz', '')
+    library_folder_name = source_path.sub('.tgz', '')
 
-      system("tar xvf #{archive_path} -C tmp/")
+    system("tar xvf #{archive_path} -C tmp/")
 
 
-      system("cp tmp/#{library_folder_name}/lib/#{file_name} #{folder_path}/#{file_name}")
-      system('rm -rf tmp')
+    system("cp tmp/#{library_folder_name}/lib/#{file_name} #{folder_path}/#{file_name}")
+    system('rm -rf tmp')
 
   end
 
