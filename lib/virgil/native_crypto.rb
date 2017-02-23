@@ -4,33 +4,43 @@ require 'net/http'
 require 'open-uri'
 require 'zlib'
 require 'fileutils'
+require 'rake'
+
 class NativeCrypto
   LIBRARY_LIST_URL = "https://cdn.virgilsecurity.com/virgil-crypto/ruby/"
 
   def self.load_library
+    #
+    #
+    # library_file_name = 'virgil_crypto_ruby.'
+    # library_file_name += required_library_os == 'linux' ? 'os' : 'bundle'
+    #
+    # crypto_folder_path = "#{lib_path}/virgil/crypto"
+    #
+    #
+    #   download_library(get_library_path, library_file_name, crypto_folder_path)
 
-    library_file_name = 'virgil_crypto_ruby.'
-    library_file_name += required_library_os == 'linux' ? 'os' : 'bundle'
-
-    crypto_folder_path = "#{lib_path}/virgil/crypto"
-
-
-      download_library(get_library_path, library_file_name, crypto_folder_path)
-
-
+#
+#     rake = Rake.application
+#     rake.init
+# # you can import addition *.rake files
+#     rake.add_import '../Rakefile'
+#     rake.load_rakefile
+#     rake['native_sources:run_cmake'].invoke()
   end
 
 
   def self.get_library_path
     body = get_https(LIBRARY_LIST_URL)
     abort "Can't download native library. Please try later." unless body
-
-    href_template = /virgil-crypto-#{required_library_version}-ruby-2.0-#{required_library_os}(?!tgz).+tgz"/
+    ruby_version = RUBY_VERSION.sub(/\.[^\.]+$/, "")
+    href_template = /virgil-crypto-#{required_library_version}\b-.+\b?-ruby-#{ruby_version}-#{required_library_os}(?!tgz).+tgz"/
     href_list = body.scan href_template
 
     if href_list.last.nil?
       abort "Sorry. Correct version #{required_library_version} of Native Library is missing."
     end
+    puts "Downloading from #{href_list.last}"
     href_list.last.sub(/"$/, '')
 
   end
