@@ -7,7 +7,6 @@ task :default do
   require 'mkmf'
 
   begin
-
     NativeCrypto.load_library
 
   rescue

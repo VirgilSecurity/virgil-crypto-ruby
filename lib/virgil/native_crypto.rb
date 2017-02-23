@@ -17,17 +17,17 @@ class NativeCrypto
   end
 
 
-  def self.get_library_path
+  def self.get_library_path 
     body = get_https(LIBRARY_LIST_URL)
-    abort "Can't download native library. Please try later." unless body
+    raise "Can't download native library. Please try later." unless body
     ruby_version = RUBY_VERSION.sub(/\.[^\.]+$/, "")
     href_template = /virgil-crypto-#{required_library_version}\b-.+\b?-ruby-#{ruby_version}-#{required_library_os}(?!tgz).+tgz"/
     href_list = body.scan href_template
 
     if href_list.last.nil?
-      abort "Sorry. Correct version #{required_library_version} of Native Library is missing."
+      raise "Sorry. Correct version #{required_library_version} of Native Library is missing."
     end
-    puts "Downloading from #{href_list.last}"
+
     href_list.last.sub(/"$/, '')
 
   end
@@ -53,7 +53,7 @@ class NativeCrypto
   end
 
   def self.required_library_version
-    Virgil::Crypto::VERSION.scan(/\d+\.\d+\.\d+(\D+\d*)$/) do |postfix|
+    Virgil::Crypto::VERSION.scan(/\d+\.\d+\.\d+(\D*\d*)$/) do |postfix|
       return Virgil::Crypto::VERSION.sub(postfix.last, '')
     end
     return ''
@@ -78,7 +78,7 @@ class NativeCrypto
           local_file.write(Zlib::GzipReader.new(remote_file).read)
         end
       rescue Exception => e
-        abort "Can't download native library by reason: #{e}"
+        raise "Can't download native library from #{source_path} by reason: #{e}"
       end
     end
 
