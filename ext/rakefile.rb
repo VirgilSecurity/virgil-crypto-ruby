@@ -27,6 +27,7 @@ task :default do
     CMAKE = find_executable "cmake"
     abort "cmake >= 3.2 is required" unless CMAKE
 
+    check_cmake_version
 
     INCLUDE_DIRS = [
         RUBY_INCLUDE_DIR = RbConfig::CONFIG['rubyhdrdir'],
@@ -59,5 +60,18 @@ task :default do
   end
 
 end
+
+def check_cmake_version
+  cmake_version_info = `cmake --version`
+  if cmake_version_info =~ /(\d+)\.(\d+)\./
+    major_version = Regexp.last_match(1).to_i
+    minor_version = Regexp.last_match(2).to_i
+    abort "cmake >= 3.2 is required" unless (major_version >= 3 && minor_version >= 2)
+  else
+    abort "Unknown cmake version. cmake >= 3.2 is required"
+  end
+
+end
+
 
 
