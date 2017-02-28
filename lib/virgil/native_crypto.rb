@@ -11,7 +11,7 @@ class NativeCrypto
 
   def self.load_library
     library_file_name = 'virgil_crypto_ruby.'
-    library_file_name += required_library_os == 'linux' ? 'os' : 'bundle'
+    library_file_name += required_library_os == 'linux' ? 'so' : 'bundle'
     crypto_folder_path = "#{lib_path}/virgil/crypto"
     download_library(get_library_path, library_file_name, crypto_folder_path)
   end
