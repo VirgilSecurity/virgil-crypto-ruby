@@ -21,7 +21,7 @@ class NativeCrypto
     body = get_https(LIBRARY_LIST_URL)
     raise "Can't download native library. Please try later." unless body
     ruby_version = RUBY_VERSION.sub(/\.[^\.]+$/, "")
-    href_template = /virgil-crypto-#{required_library_version}\b-.+\b?-ruby-#{ruby_version}-#{required_library_os}(?!tgz).+tgz"/
+    href_template = /virgil-crypto-#{required_library_version}(?:\b-.+\b?)?-ruby-#{ruby_version}-#{required_library_os}(?!tgz).+tgz"/
     href_list = body.scan href_template
 
     if href_list.last.nil?
@@ -85,7 +85,6 @@ class NativeCrypto
     library_folder_name = source_path.sub('.tgz', '')
 
     system("tar xvf #{archive_path} -C tmp/")
-
 
     system("cp tmp/#{library_folder_name}/lib/#{file_name} #{folder_path}/#{file_name}")
     system('rm -rf tmp')

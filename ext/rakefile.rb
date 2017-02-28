@@ -7,21 +7,19 @@ task :default do
   require 'mkmf'
 
   abort "Sorry, we don't support Ruby with version 2.0! Please Upgrade you Ruby version." if RUBY_VERSION =~ /^2\.0\./
+  ROOT_DIR = File.expand_path('../..', __FILE__)
+  LIB_DIR = File.join(ROOT_DIR, "lib")
+  INSTALL_DIR = File.join(LIB_DIR, 'virgil', 'crypto')
 
   begin
     NativeCrypto.load_library
-
+    ext = OS.linux? ? "so" : "bundle"
+    raise "Native library wasn't loaded" unless File.exists?(File.join(INSTALL_DIR, "virgil_crypto_ruby.#{ext}"))
   rescue
 
     SCRIPT_DIR = File.expand_path('../', __FILE__)
-    ROOT_DIR = File.expand_path('../..', __FILE__)
     SRC_DIR = File.join(SCRIPT_DIR, 'native/src')
     CURRENT_DIR = Dir.pwd
-    LIB_DIR = File.join(ROOT_DIR, "lib")
-    INSTALL_DIR = File.join(LIB_DIR, 'virgil', 'crypto')
-    ext = OS.linux? ? "so" : "bundle"
-
-    # unless File.exists?(File.join(INSTALL_DIR, "virgil_crypto_ruby.#{ext}"))
     BUILD_DIR = File.join(ROOT_DIR, "build")
     mkdir_p BUILD_DIR
     cd BUILD_DIR
@@ -59,7 +57,7 @@ task :default do
     cd '../'
     rm_rf BUILD_DIR
   end
-  # end
+
 end
 
 
