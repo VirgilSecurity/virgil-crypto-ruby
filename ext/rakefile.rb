@@ -57,7 +57,7 @@ task :default do
     cd '../'
     rm_rf BUILD_DIR
   end
-  abort "virgil-crypto gem can't be installed because native library wasn't built. Please look at the output above. " unless File.exists?(File.join(INSTALL_DIR, "virgil_crypto_ruby.#{ext}"))
+  abort "ERROR! virgil-crypto gem can't be installed because native library wasn't built. Please look at the output above. " unless File.exists?(File.join(INSTALL_DIR, "virgil_crypto_ruby.#{ext}"))
 
 end
 
