@@ -11,9 +11,9 @@ task :default do
   LIB_DIR = File.join(ROOT_DIR, "lib")
   INSTALL_DIR = File.join(LIB_DIR, 'virgil', 'crypto')
 
+  ext = OS.linux? ? "so" : "bundle"
   begin
     NativeCrypto.load_library
-    ext = OS.linux? ? "so" : "bundle"
     raise "Native library wasn't loaded" unless File.exists?(File.join(INSTALL_DIR, "virgil_crypto_ruby.#{ext}"))
   rescue
 
@@ -54,10 +54,10 @@ task :default do
     system(CMAKE_COMMAND)
     system('make -j4')
     system('make install')
-
     cd '../'
     rm_rf BUILD_DIR
   end
+  abort "virgil-crypto gem can't be installed because native library wasn't built. Please look at the output above. " unless File.exists?(File.join(INSTALL_DIR, "virgil_crypto_ruby.#{ext}"))
 
 end
 
@@ -72,6 +72,8 @@ def check_cmake_version
   end
 
 end
+
+
 
 
 
