@@ -1,7 +1,7 @@
 # Virgil Crypto Library wrapper
 
-## Installation
-
+This gem implements Ruby wrapper for [Virgil Crypto](https://github.com/VirgilSecurity/virgil-crypto).
+# Installation and usage 
 To install the latest gem version run:
 
 ```
@@ -19,3 +19,6 @@ and then run
 ```
 bundle
 ```
+
+# Usage
+Use this crypto with [Virgil SDK](https://github.com/VirgilSecurity/virgil-sdk-ruby) that will provide you to create an secure application using Virgil Security services.
