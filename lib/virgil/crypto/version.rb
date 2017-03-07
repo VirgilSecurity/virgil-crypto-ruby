@@ -1,5 +1,5 @@
 module Virgil
   module Crypto
-    VERSION = "2.0.6r4"
+    VERSION = "2.0.7"
   end
 end
