@@ -5,13 +5,13 @@ This gem implements Ruby wrapper for [Virgil Crypto](https://github.com/VirgilSe
 To install the latest gem version run:
 
 ```
-gem install virgil-crypto --pre
+gem install virgil-crypto
 ```
 
 or add the following line to your Gemfile:
 
 ```
-gem 'virgil-crypto', '~> 2.0.6r4'
+gem 'virgil-crypto', '~> 2.1.0'
 ```
 
 and then run

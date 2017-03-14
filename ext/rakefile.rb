@@ -16,7 +16,7 @@ task :default do
     NativeCrypto.load_library
     raise "Native library wasn't loaded" unless File.exists?(File.join(INSTALL_DIR, "virgil_crypto_ruby.#{ext}"))
   rescue
-
+    puts "Building Native library..."
     SCRIPT_DIR = File.expand_path('../', __FILE__)
     SRC_DIR = File.join(SCRIPT_DIR, 'native/src')
     CURRENT_DIR = Dir.pwd

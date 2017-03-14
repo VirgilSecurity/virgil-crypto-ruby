@@ -68,7 +68,7 @@ class NativeCrypto
   end
 
   def self.download_library(source_path, file_name, folder_path)
-
+    puts "Downloading #{source_path}..."
     system('mkdir -p tmp')
     archive_path = 'tmp/native_library.tar.gz'
 
