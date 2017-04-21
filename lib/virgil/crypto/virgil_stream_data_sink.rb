@@ -43,7 +43,7 @@ module Virgil
       end
 
       def is_good
-        !stream.closed_write?
+        !stream.closed?
       end
 
       def write(data)

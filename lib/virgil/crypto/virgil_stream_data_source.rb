@@ -44,7 +44,7 @@ module Virgil
       end
 
       def has_data
-        !stream.closed_read? && !stream.eof?
+        !stream.closed? && !stream.eof?
       end
 
       def read
