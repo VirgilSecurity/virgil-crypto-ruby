@@ -10,10 +10,10 @@ class NativeCrypto
   LIBRARY_LIST_URL = "https://cdn.virgilsecurity.com/virgil-crypto/ruby/"
 
   def self.load_library
-    library_file_name = 'virgil_crypto_ruby.'
-    library_file_name += required_library_os == 'linux' ? 'so' : 'bundle'
+    file_name = 'virgil_crypto_ruby.'
+    file_name += required_library_os == 'linux' ? 'so' : 'bundle'
     crypto_folder_path = "#{lib_path}/virgil/crypto"
-    download_library(get_library_path, library_file_name, crypto_folder_path)
+    download_library(get_library_path, file_name, crypto_folder_path)
   end
 
 
@@ -53,8 +53,8 @@ class NativeCrypto
   end
 
   def self.required_library_version
-    Virgil::Crypto::VERSION.scan(/\d+\.\d+\.\d+(\D*\d*)$/) do |postfix|
-      return Virgil::Crypto::VERSION.sub(postfix.last, '')
+    Virgil::Crypto::VERSION.scan(/(\d+\.\d+\.\d+)\D*\d*$/) do |postfix|
+      return postfix * ''
     end
     return ''
   end
