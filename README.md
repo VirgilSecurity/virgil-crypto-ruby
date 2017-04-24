@@ -11,7 +11,7 @@ gem install virgil-crypto
 or add the following line to your Gemfile:
 
 ```
-gem 'virgil-crypto', '~> 2.1.3'
+gem 'virgil-crypto', '~> 2.1.2'
 ```
 
 and then run
