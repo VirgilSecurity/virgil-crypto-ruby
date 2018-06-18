@@ -42,6 +42,7 @@ module Virgil
       include Virgil::Crypto
 
       attr_accessor :key_pair_type
+      attr_accessor :use_SHA256_fingerprints
 
       def initialize(key_pair_type = Keys::KeyPairType::Default)
         @key_pair_type = key_pair_type
@@ -425,7 +426,8 @@ module Virgil
       #   The possible values can be found in HashAlgorithm enum.
       # @return [Crypto::Bytes] Hash bytes.
       def generate_hash(bytes, algorithm = nil)
-        alg = algorithm ? algorithm : HashAlgorithm::SHA256
+        alg = algorithm
+        alg ||= use_SHA256_fingerprints ? HashAlgorithm::SHA256 : HashAlgorithm::SHA512
 
         native_algorithm = HashAlgorithm.convert_to_native(alg)
         native_hasher = Crypto::Native::VirgilHash.new(native_algorithm)
