@@ -7,16 +7,22 @@ require 'fileutils'
 require 'rake'
 
 module NativeCrypto
-  module_function
 
   LIBRARIES_URL = 'https://cdn.virgilsecurity.com/virgil-crypto/ruby/'.freeze
 
-  def load_library
+  def self.download
     file_name = "virgil_crypto_ruby.#{os_ext == 'linux' ? 'so' : 'bundle'}"
-    download_library(library_url, file_name)
+    source_url = LIBRARIES_URL + library_path
+    puts "Downloading #{source_url}..."
+    system('mkdir -p tmp')
+    archive_path = 'tmp/native_library.tar.gz'
+    download_archive(source_url, archive_path)
+    extract_library(archive_path, file_name)
   end
 
-  def library_url
+  private
+
+  def self.library_path
     list = libraries_list(URI(LIBRARIES_URL))
     ruby_v = "-ruby-#{RUBY_VERSION.sub(/\.[^\.]+$/, '')}-#{os_ext}"
     href_template = /virgil-crypto-#{gem_v}(?:\b-.+\b?)?#{ruby_v}(?!tgz).+tgz"/
@@ -27,7 +33,7 @@ module NativeCrypto
     href_list.last.sub(/"$/, '')
   end
 
-  def libraries_list(uri)
+  def self.libraries_list(uri)
     Net::HTTP.start(uri.host, uri.port, use_ssl: true) do |http|
       http.read_timeout = 100
       request = Net::HTTP::Get.new uri
@@ -40,11 +46,11 @@ module NativeCrypto
     end
   end
 
-  def gem_v
+  def self.gem_v
     Virgil::Crypto::VERSION.scan(/(\d+\.\d+\.\d+)\D*\d*$/) do |postfix|
       return postfix * ''
     end
-    return ''
+    ''
   end
 
   def self.os_ext
@@ -55,28 +61,22 @@ module NativeCrypto
     end
   end
 
-  def download_library(source_path, file_name)
-    puts "Downloading #{source_path}..."
-    system('mkdir -p tmp')
-    archive_path = 'tmp/native_library.tar.gz'
-    File.new(archive_path, 'w') do |local_file|
-      begin
-        open(LIBRARIES_URL + source_path) do |remote_file|
-          local_file.write(Zlib::GzipReader.new(remote_file).read)
-        end
-      rescue Exception => e
-        raise "Can't download native library from #{source_path} by reason: #{e}"
-      end
-    end
-
-    library_folder_name = source_path.sub('.tgz', '')
-
+  def self.extract_library(archive_path, file_name)
+    folder_name = library_path.sub('.tgz', '')
     system("tar xvf #{archive_path} -C tmp/")
-
     target_file_path = "#{File.expand_path(__dir__)}/crypto/#{file_name}"
-    system("cp tmp/#{library_folder_name}/lib/#{file_name} #{target_file_path}")
+    system("cp tmp/#{folder_name}/lib/#{file_name} #{target_file_path}")
     system('rm -rf tmp')
-
   end
 
+  def self.download_archive(source_url, archive_path)
+    File.new(archive_path, 'w') do |file|
+      begin
+        uri = URI.parse(source_url)
+        uri.open { |source| file.write(GzipReader.new(source).read) }
+      rescue StandardError => e
+        raise "Can't download native library from #{source_url}. Reason: #{e}"
+      end
+    end
+  end
 end
