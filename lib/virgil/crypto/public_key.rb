@@ -34,7 +34,7 @@
 
 module Virgil
   module Crypto
-        # Class containing public key information
-        VirgilPublicKey = Struct.new(:id, :raw_key)
+  # Class containing public key information
+  VirgilPublicKey = Struct.new(:id, :raw_key)
   end
 end
