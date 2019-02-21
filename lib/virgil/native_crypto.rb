@@ -15,9 +15,9 @@ module NativeCrypto
     source_url = LIBRARIES_URL + library_path
     puts "Downloading #{source_url}..."
     system('mkdir -p tmp')
-    archive_path = 'tmp/native_library.tar.gz'
-    download_archive(source_url, archive_path)
-    extract_library(archive_path, file_name)
+    core_path = 'tmp/crypto_core.tar.gz'
+    download_archive(source_url, core_path)
+    extract_library(core_path, file_name)
   end
 
   private
@@ -38,12 +38,13 @@ module NativeCrypto
       http.read_timeout = 100
       request = Net::HTTP::Get.new uri
       response = http.request request
-      if response == Net::HTTPSuccess
-        response.body
+      if response.is_a?(Net::HTTPOK)
+        return response.body
       else
         raise "Can't download native library. Please try later."
       end
     end
+
   end
 
   def self.gem_v
@@ -64,16 +65,16 @@ module NativeCrypto
   def self.extract_library(archive_path, file_name)
     folder_name = library_path.sub('.tgz', '')
     system("tar xvf #{archive_path} -C tmp/")
-    target_file_path = "#{File.expand_path(__dir__)}/crypto/#{file_name}"
+
+    target_file_path = "#{File.expand_path(__dir__)}/crypto/"
     system("cp tmp/#{folder_name}/lib/#{file_name} #{target_file_path}")
-    system('rm -rf tmp')
   end
 
   def self.download_archive(source_url, archive_path)
-    File.new(archive_path, 'w') do |file|
+    File.open(archive_path, 'wb') do |file|
       begin
-        uri = URI.parse(source_url)
-        uri.open { |source| file.write(GzipReader.new(source).read) }
+        archive = libraries_list(URI(source_url))
+        file.write(archive)
       rescue StandardError => e
         raise "Can't download native library from #{source_url}. Reason: #{e}"
       end

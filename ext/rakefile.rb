@@ -39,14 +39,14 @@ def check_cmake
       abort 'cmake >= 3.10 is required'
     end
   else
-    abort 'Unknown cmake version. cmake >= 3.2 is required'
+    abort 'Unknown cmake version. cmake >= 3.10 is required'
   end
 
 end
 
 def build_native_crypto(core_filename)
   core_install_dir = File.join(EXT_DIR, 'native',
-                               'src', 'install', 'ruby' )
+                               'src', 'install', 'ruby')
   Thread.new { system './utils/build.sh --target=ruby' }.join
   system "ls #{core_install_dir}"
   if Dir.empty?(core_install_dir)
