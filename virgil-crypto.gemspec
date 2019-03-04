@@ -10,8 +10,8 @@ abort "Windows is not supported yet." if OS.windows?
 Gem::Specification.new do |spec|
   spec.name          = "virgil-crypto"
   spec.version       = Virgil::Crypto::VERSION
-  spec.authors       = ["Dmitriy Dudkin", "Sergey Seroshtan", "Vasilina Bezuglaya"]
-  spec.email         = ["dudkin.dmitriy@gmail.com", "sseroshtan@virgilsecurity.com"]
+  spec.authors       = ["Dmitriy Dudkin", "Vasilina Bezuglaya", "Sergey Seroshtan"]
+  spec.email         = ["dudkin.dmitriy@gmail.com", "vbezuglaya@virgilsecurity.net", "sseroshtan@virgilsecurity.com"]
 
   spec.summary       = %q{Virgil Crypto library wrapper}
   spec.description   = %q{virgil-crypto provides:
