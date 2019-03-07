@@ -32,6 +32,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rake-compiler", "~> 1.0"
   spec.add_development_dependency "rake", "~> 10.0"
   spec.add_development_dependency "minitest-reporters", "~> 1.1"
+  spec.add_development_dependency 'envyable', '~> 1.2'
 
   current_dir = File.expand_path(File.dirname(__FILE__))
 
