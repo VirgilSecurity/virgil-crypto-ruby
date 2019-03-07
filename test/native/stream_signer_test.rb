@@ -36,7 +36,7 @@ require 'test_helper'
 module Virgil
   module Crypto
     class StreamSignerTest < Minitest::Test
-      def test_signs_and_verifies_data
+      def test_signs_and_verifies_data_with_default_hash
         raw_data = Bytes.from_string("test")
 
         key_pair = Core::VirgilKeyPair.generate(
@@ -55,6 +55,28 @@ module Virgil
         is_valid = signer.verify(source, signature, key_pair.public_key)
         assert(is_valid)
       end
+
+      def test_signs_and_verifies_data
+        raw_data = Bytes.from_string("test")
+
+        key_pair = Core::VirgilKeyPair.generate(
+            Core::VirgilKeyPair::Type_FAST_EC_ED25519
+        )
+        native_algorithm = HashAlgorithm.convert_to_native(HashAlgorithm::SHA512)
+
+        # Create Signer
+        signer = Core::VirgilStreamSigner.new(native_algorithm)
+
+        # Sign
+        source = VirgilStreamDataSource.new(StringIO.new(raw_data.to_s))
+        signature = signer.sign(source, key_pair.private_key)
+
+        # Verify
+        source = VirgilStreamDataSource.new(StringIO.new(raw_data.to_s))
+        is_valid = signer.verify(source, signature, key_pair.public_key)
+        assert(is_valid)
+      end
+
     end
   end
 end
