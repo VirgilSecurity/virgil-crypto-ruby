@@ -44,7 +44,7 @@ message_to_sign = 'Hello, Bob!'
 data_to_sign = Bytes.from_string(message_to_sign)
 
 # generate a signature
-signature = crypto.generate_signature(data_to_sign, sender_private_key);
+signature = crypto.generate_signature(data_to_sign, sender_private_key)
 ```
 
 Verify a signature with a public key:
@@ -55,7 +55,7 @@ include Virgil::Crypto
 crypto = VirgilCrypto.new
 
 # verify a signature
-verified = crypto.verify_signature(signature, data_to_sign, sender_public_key);
+verified = crypto.verify_signature(signature, data_to_sign, sender_public_key)
 ```
 
 #### Encrypt and decrypt data

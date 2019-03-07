@@ -14,11 +14,9 @@ Gem::Specification.new do |spec|
   spec.email         = ["dudkin.dmitriy@gmail.com", "vbezuglaya@virgilsecurity.net", "sseroshtan@virgilsecurity.com"]
 
   spec.summary       = %q{Virgil Crypto library wrapper}
-  spec.description   = %q{virgil-crypto provides:
-                        Encrypt data
-                        Decrypt data
-                        Sign data
-                        Verify data}
+  spec.description   = %q{virgil-crypto provides: Asymmetric Key Generation,
+                          Encryption/Decryption of data and streams,
+                          Generation/Verification of digital signatures,PFS (Perfect Forward Secrecy)}
   spec.homepage      = "http://github.com/VirgilSecurity/virgil-crypto-ruby"
   spec.licenses      = ['BSD-3-Clause']
 
