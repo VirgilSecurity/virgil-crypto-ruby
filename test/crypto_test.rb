@@ -79,6 +79,32 @@ module Virgil
         signature = crypto.generate_signature(message_bytes, key_pair.private_key)
         assert_equal(true, crypto.verify_signature(signature, message_bytes, key_pair.public_key))
       end
+
+      def test_generate_stream_signature_returns_valid_signature
+        crypto = VirgilCrypto.new
+        key_pair = crypto.generate_keys
+        message_bytes = Bytes.from_string('some card snapshot')
+        stream = StringIO.new(message_bytes.to_s)
+        signature = crypto.generate_stream_signature(stream, key_pair.private_key)
+        stream.rewind
+        assert_equal(true, crypto.verify_stream_signature(signature, stream, key_pair.public_key))
+      end
+
+      def test_decrypt_encrypted_stream_returns_equivalent_stream
+        crypto = VirgilCrypto.new
+        key_pair = crypto.generate_keys
+        message_bytes = Bytes.from_string('hi')
+        origin_stream = StringIO.new(message_bytes.to_s)
+        encrypted_stream = StringIO.new
+        crypto.encrypt_stream(origin_stream, encrypted_stream, key_pair.public_key)
+        decrypted_stream = StringIO.new
+
+        encrypted_stream.rewind
+        crypto.decrypt_stream(encrypted_stream, decrypted_stream, key_pair.private_key)
+        decrypted_message_bytes = Bytes.from_string(decrypted_stream.string)
+        assert_equal(message_bytes, decrypted_message_bytes)
+      end
+
     end
   end
 end
