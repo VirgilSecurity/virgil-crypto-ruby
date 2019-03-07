@@ -37,7 +37,6 @@ module Virgil
     # Provides export [PrivateKey] into its material representation bytes and
     # import [PrivateKey] from its material representation bytes.
     class VirgilPrivateKeyExporter
-      include Virgil::Crypto
       attr_reader :virgil_crypto
       attr_reader :password
 
