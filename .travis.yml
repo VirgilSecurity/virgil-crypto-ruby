@@ -1,0 +1,10 @@
+language: ruby
+branches:
+  only:
+    - master
+before_install:
+- rvm install 2.4.1
+rvm:
+- 2.4.1
+script:
+- rake
