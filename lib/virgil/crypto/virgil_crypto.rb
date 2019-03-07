@@ -37,8 +37,8 @@ module Virgil
     # Wrapper for cryptographic operations.
     #
     # Class provides a cryptographic operations in applications, such as
-    # hashing, signature generation and verification, and encryption
-    # and decryption
+    # hashing, signature generation and verification, key creation,
+    # import and export key, encryption and decryption.
     class VirgilCrypto
       attr_reader :default_key_type
       attr_accessor :use_SHA256_fingerprints
@@ -61,11 +61,15 @@ module Virgil
       #   The possible values can be found in KeyPairType enum.
       # @param key_material [Bytes] the only data to be used for
       # key generation, length must be more than 31.
-      # @return [KeyPair] Generated key pair.
-      # @example
+      # @return [KeyPair] Generated key pair with the special type.
+      # @example Generated key pair with default type FAST_EC_ED25519
       #   include Virgil::Crypto
       #   crypto = VirgilCrypto.new
       #   alice_keys = crypto.generate_keys
+      # @example Generated key pair with type EC_SECP256R1
+      #   include Virgil::Crypto
+      #   crypto = VirgilCrypto.new
+      #   alice_keys = crypto.generate_keys(key_type: KeyPairType::EC_SECP256R1)
       def generate_keys(keys_type: @default_key_type, key_material: nil)
         key_material = Validation.check_filled_array_argument!(key_material) if key_material
         begin
@@ -104,7 +108,7 @@ module Virgil
       # @param password [String] private key password, nil by default.
       # @return [VirgilPrivateKey] Imported private key.
       # @example
-      #   private_key = crypto.import_private_key(exported_private_key)
+      #   private_key = crypto.import_private_key(exported_private_key, 'my_password')
       # @see #export_private_key How to get exported_private_key
       def import_private_key(key_bytes, password = nil)
         key_bytes = Validation.check_filled_array_argument!(key_bytes)
@@ -160,7 +164,7 @@ module Virgil
       #   include Virgil::Crypto
       #   crypto = VirgilCrypto.new
       #   alice_keys = crypto.generate_keys
-      #   exported_private_key = crypto.export_private_key(alice_keys.private_key)
+      #   exported_private_key = crypto.export_private_key(alice_keys.private_key, 'my_password')
       def export_private_key(private_key, password = nil)
         private_key = Validation.check_type_argument!(VirgilPrivateKey, private_key)
 
@@ -209,7 +213,7 @@ module Virgil
       # Extracts the Public key from Private key.
       # @param private_key [VirgilPrivateKey] source private
       # key for extraction.
-      # @return  [VirgilPublicKey] Exported public key.
+      # @return [VirgilPublicKey] Exported public key.
       def extract_public_key(private_key)
         private_key = Validation.check_type_argument!(VirgilPrivateKey, private_key)
 
@@ -229,20 +233,19 @@ module Virgil
         end
       end
 
-      # Encrypts the specified bytes using Public keys.
+      # Encrypts the specified data using the specified recipients Public keys.
       # @param bytes [Virgil::Bytes] raw data bytes for encryption.
       # @param *public_keys [Array<VirgilPublicKey>] list
-      # of public_keys' public keys.
+      # of public keys.
       # @return [Bytes] Encrypted bytes.
       # @example
-      #   # Data encryption using ECIES scheme with AES-GCM.
-      #   # There can be more than one recipient.
       #   include Virgil::Crypto
       #   crypto = VirgilCrypto.new
       #   alice_keys = crypto.generate_keys
-      #   plain_data = Virgil::Bytes.from_string('Hello Bob!')
+      #   plain_data = Bytes.from_string('Hello Bob!')
       #   cipher_data = crypto.encrypt(plain_data, alice_keys.public_key)
-      # @see #generate_keys
+      # @see #generate_keys How to generate keys
+      # @see #decrypt How to decrypt data
       def encrypt(bytes, *public_keys)
         bytes = Validation.check_filled_array_argument!(bytes)
 
@@ -286,7 +289,7 @@ module Virgil
       # @param bytes [Bytes] data bytes for signing and encryption.
       # @param private_key [VirgilPrivateKey] private key to sign the data.
       # @param *public_keys [Array<VirgilPublicKey>] list of public keys
-      #   used for data encryption.
+      #  to encrypt the data.
       # @return [Bytes] Signed and encrypted data bytes.
       # @example
       #   include Virgil::Crypto
@@ -332,7 +335,7 @@ module Virgil
       # for verification,
       #   which can contain signer's public key.
       # @return [Bytes] Decrypted data bytes.
-      # @raise [SignatureIsNotValid] if signature is not verified.
+      # @raise [VirgilCryptoException] if signature is not verified.
       # @example
       #   include Virgil::Crypto
       #   crypto = VirgilCrypto.new
@@ -366,7 +369,7 @@ module Virgil
             signer_public_key = public_keys.find {|public_key| public_key.id == signer_id}
           end
 
-          is_valid = verify_signature(decrypted_bytes, signature, signer_public_key)
+          is_valid = verify_signature(signature, decrypted_bytes, signer_public_key)
           raise VirgilCryptoException, 'Signature is not valid' unless is_valid
 
           wrap_bytes(decrypted_bytes)
@@ -384,9 +387,10 @@ module Virgil
       #   crypto = VirgilCrypto.new
       #   alice_keys = crypto.generate_keys()
       #   # The data to be signed with alice's Private key
-      #   data = Virgil::Bytes.from_string('Hello Bob, How are you?')
+      #   data = Bytes.from_string('Hello Bob, How are you?')
       #   signature = crypto.generate_signature(data, alice.private_key)
       # @see #generate_keys
+      # @see #verify_signature How to verify signature
       def generate_signature(bytes, private_key)
         bytes = Validation.check_filled_array_argument!(bytes)
         private_key = Validation.check_type_argument!(VirgilPrivateKey, private_key)
@@ -412,7 +416,7 @@ module Virgil
       #   include Virgil::Crypto
       #   crypto = VirgilCrypto.new
       #   alice_keys = crypto.generate_keys()
-      #   data = Virgil::Bytes.from_string('Hello Bob, How are you?')
+      #   data = Bytes.from_string('Hello Bob, How are you?')
       #   is_valid = crypto.verify_signature(signature, data, alice.public_key)
       # @see #generate_signature How to get signature
       def verify_signature(signature, bytes, signer_public_key)
@@ -435,7 +439,6 @@ module Virgil
       # @param cipher_stream [IO] writable stream for output.
       # @param *public_keys [Array<VirgilPublicKey>] list of
       # public_keys' public keys.
-      # @return [Bytes] encrypted bytes.
       # @example
       #   include Virgil::Crypto
       #   crypto = VirgilCrypto.new
@@ -447,12 +450,6 @@ module Virgil
       #     end
       #   end
       def encrypt_stream(input_stream, cipher_stream, *public_keys)
-        input_stream = Validation.check_type_argument!(IO, input_stream)
-        cipher_stream = Validation.check_type_argument!(IO, cipher_stream)
-
-        raise ArgumentError, 'input_stream must not be empty' if input_stream.empty?
-        raise ArgumentError, 'cipher_stream must not be empty' if cipher_stream.empty?
-
         begin
           cipher = Core::VirgilChunkCipher.new
           public_keys.each do |public_key|
@@ -466,7 +463,6 @@ module Virgil
           raise VirgilCryptoException, error.message
         end
       end
-
 
       # Decrypts the specified stream using Private key.
       # @param cipher_stream [IO] readable stream containing encrypted data.
@@ -484,13 +480,7 @@ module Virgil
       # @see #encrypt_stream How to get cipher_stream
       # @see #export_private_key How to get exported_private_key
       def decrypt_stream(cipher_stream, output_stream, private_key)
-        cipher_stream = Validation.check_type_argument!(IO, cipher_stream)
-        output_stream = Validation.check_type_argument!(IO, output_stream)
         private_key = Validation.check_type_argument!(VirgilPrivateKey, private_key)
-
-        raise ArgumentError, 'cipher_stream must not be empty' if cipher_stream.empty?
-        raise ArgumentError, 'output_stream must not be empty' if output_stream.empty?
-
         begin
           cipher = Core::VirgilChunkCipher.new
           source = VirgilStreamDataSource.new(cipher_stream)
@@ -505,14 +495,20 @@ module Virgil
       # @param input_stream [IO] readable stream containing input data.
       # @param private_key [VirgilPrivateKey] private key for signing.
       # @return [Bytes] Signature bytes.
+      # @example
+      #   include Virgil::Crypto
+      #   crypto = VirgilCrypto.new
+      #   alice_keys = crypto.generate_keys()
+      #   File.open('[YOUR_FILE_PATH_HERE]', 'r') do |input_stream|
+      #       signature = crypto.generate_stream_signature(input_stream, alice_keys.private_key)
+      #   end
+      #  @see #verify_stream_signature How to verify the signature
       def generate_stream_signature(input_stream, private_key)
-        input_stream = Validation.check_type_argument!(IO, input_stream)
         private_key = Validation.check_type_argument!(VirgilPrivateKey, private_key)
 
-        raise ArgumentError, 'input_stream must not be empty' if input_stream.empty?
-
         begin
-          signer = Core::VirgilStreamSigner.new(HashAlgorithm::SHA512)
+          native_algorithm = HashAlgorithm.convert_to_native(HashAlgorithm::SHA512)
+          signer = Core::VirgilStreamSigner.new(native_algorithm)
           source = VirgilStreamDataSource.new(input_stream)
           wrap_bytes(signer.sign(source, private_key.raw_key))
         rescue StandardError => error
@@ -525,15 +521,21 @@ module Virgil
       # @param signature [Bytes] signature bytes for verification.
       # @param signer_public_key [VirgilPublicKey] signer public key for verification.
       # @return [Boolean] True if signature is valid, False otherwise.
+      # @example
+      #   include Virgil::Crypto
+      #   crypto = VirgilCrypto.new
+      #   alice_keys = crypto.generate_keys()
+      #   File.open('[YOUR_FILE_PATH_HERE]', 'r') do |input_stream|
+      #       verified = crypto.verify_stream_signature(signature, input_stream, alice_keys.public_key)
+      #   end
+      #  @see #generate_stream_signature How to get the signature
       def verify_stream_signature(signature, input_stream, signer_public_key)
         signature = Validation.check_filled_array_argument!(signature)
-        input_stream = Validation.check_type_argument!(IO, input_stream)
         signer_public_key = Validation.check_type_argument!(VirgilPublicKey, signer_public_key)
 
-        raise ArgumentError, 'input_stream must not be empty' if input_stream.empty?
-
         begin
-          signer = Core::VirgilStreamSigner.new(HashAlgorithm::SHA512)
+          native_algorithm = HashAlgorithm.convert_to_native(HashAlgorithm::SHA512)
+          signer = Core::VirgilStreamSigner.new(native_algorithm)
           source = VirgilStreamDataSource.new(input_stream)
           signer.verify(source, signature, signer_public_key.raw_key)
         rescue StandardError => error
