@@ -32,11 +32,10 @@
 # IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-LIB_DIR = File.expand_path('lib', __dir__)
+LIB_DIR = File.expand_path('../lib', __dir__)
 EXT_DIR = File.expand_path(__dir__)
 INSTALL_DIR = File.join(LIB_DIR, 'virgil', 'crypto')
 $LOAD_PATH.unshift(LIB_DIR) unless $LOAD_PATH.include?(LIB_DIR)
-
 task :default do
   require 'virgil/native_crypto'
   require 'mkmf'
@@ -79,16 +78,20 @@ def check_cmake
 end
 
 def build_native_crypto(core_filename)
-  core_install_dir = File.join(EXT_DIR, 'native',
-                               'src', 'install', 'ruby')
-  Thread.new { system './utils/build.sh --target=ruby' }.join
+  core_install_dir = File.join(EXT_DIR, 'native', 'src', 'install', 'ruby')
+  build_dir = File.join(EXT_DIR, 'native', 'src', 'build')
+
+  Thread.new {
+    system 'cd native/src; ./utils/build.sh --target=ruby; cd ../.. '
+  }.join
   system "ls #{core_install_dir}"
   if Dir.empty?(core_install_dir)
     abort "ERROR! virgil-crypto gem can't be installed because native "\
 "library wasn't built. Please look at the output above."
   end
-  system "cp #{core_install_dir}/*.tgz #{File.join(INSTALL_DIR, core_filename)}"
-  system 'rm -rf build && rm -rf install'
+  system "cp #{build_dir}/ruby/wrappers/ruby/#{core_filename} #{File.join(INSTALL_DIR, core_filename)}"
+
+  system "rm -rf #{build_dir} && rm -rf #{core_install_dir}"
 end
 
 

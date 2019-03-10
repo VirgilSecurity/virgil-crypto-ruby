@@ -38,25 +38,88 @@ require 'json'
 module Virgil
   module Crypto
     class Bytes < Array
-      def self.from_string(source)
-        new(source.bytes.to_a)
+      # Initializes a new array of bytes from specified string, which encodes binary data.
+      # @param str [String] String to decode.
+      # @param encoding [VirgilStringEncoding] The character encoding of string.
+      # @raise [ArgumentError] if encoding is undefined
+      def self.from_string(str, encoding = VirgilStringEncoding::UTF8)
+        case encoding
+        when VirgilStringEncoding::BASE64
+          from_base64(str)
+        when VirgilStringEncoding::HEX
+          from_hex(str)
+        when VirgilStringEncoding::UTF8
+          from_utf8(str)
+        else
+          raise ArgumentError, 'Encoding is undefined'
+        end
       end
 
-      def self.from_base64(source)
-        new(Base64.decode64(source).bytes)
+      # Decodes the current bytes to a string according to the specified
+      # character encoding.
+      # @param encoding [VirgilStringEncoding] The character encoding to encode to.
+      #    equivalent string representation if raw bytes in selected encoding.
+      # @return [String]
+      # @raise [ArgumentError] if encoding is undefined
+      def to_string(encoding = VirgilStringEncoding::UTF8)
+        case encoding
+        when VirgilStringEncoding::BASE64
+          to_base64
+        when VirgilStringEncoding::HEX
+          to_hex
+        when VirgilStringEncoding::UTF8
+          to_s
+        else
+          raise ArgumentError, 'Encoding is undefined'
+        end
       end
 
+      # Converts all the bytes to its equivalent string representation in utf8.
       def to_s
         pack('c*')
       end
 
-      def to_json(*a)
-        Base64.strict_encode64(to_s).to_json(*a)
+      # Initializes a new array of bytes from specified string,
+      # which encodes binary data as base-64 digits.
+      def self.from_base64(str)
+        new(Base64.decode64(str).bytes)
       end
 
+      # Initializes a new array of bytes from specified string,
+      # which encodes binary data as utf8.
+      def self.from_utf8(str)
+        new(str.bytes)
+      end
+
+      # Initializes a new array of bytes from specified string,
+      # which encodes binary data as hexadecimal digits.
+      def self.from_hex(str)
+        new(str.scan(/../).map { |x| x.hex })
+      end
+
+      # Converts all the bytes to its equivalent string representation that
+      # is encoded with base-64 digits.
       def to_base64
         Base64.strict_encode64(to_s)
       end
+
+      # Encodes all the bytes into a utf8 string.
+      def to_utf8
+        to_s
+      end
+
+      # Converts the numeric value of each element of a current array of bytes to its
+      # equivalent hexadecimal string representation.
+      def to_hex
+        to_s.each_byte.map { |b| b.to_s(16) }.join
+      end
+
+    end
+
+    module VirgilStringEncoding
+      BASE64 = 1
+      HEX = 2
+      UTF8 = 3
     end
   end
 end
