@@ -2,9 +2,25 @@ language: ruby
 branches:
   only:
     - master
+dist: xenial
 before_install:
-- rvm install 2.4.1
+- which cmake
+- git clone https://github.com/swig/swig.git
+- cd swig && ./autogen.sh && ./configure && make
+- sudo make install
+- cd ../
+- rvm install 2.6.1
 rvm:
-- 2.4.1
+- 2.6.1
 script:
+- which cmake
+- cd ext; rake; cd ..
 - rake
+- yardoc lib/*  --output-dir docs
+deploy:
+  provider: pages
+  skip_cleanup: true
+  github_token: $GITHUB_TOKEN # Set in travis-ci.org dashboard
+  local_dir: docs
+  on:
+    branch: master
