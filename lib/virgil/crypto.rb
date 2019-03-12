@@ -33,7 +33,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 require "virgil/crypto/version"
-require "virgil/crypto/virgil_crypto_ruby.bundle"
+require "virgil/crypto/virgil_crypto_ruby"
 Virgil::Crypto::Core = Virgil_crypto_ruby
 require "virgil/crypto/stream_data_sink"
 require "virgil/crypto/stream_data_source"
