@@ -10,8 +10,16 @@ before_install:
 - sudo make install
 - cd ../
 - rvm install 2.6.1
+- rvm install 2.4.0
+- if [ "TRAVIS_OS_NAME" == "linux" ]; then
+  gem install bundler -v 1.17.3;
+  fi
+os:
+- linux
+- osx
 rvm:
 - 2.6.1
+- 2.4.0
 script:
 - which cmake
 - cd ext; rake; cd ..
