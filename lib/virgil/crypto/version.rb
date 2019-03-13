@@ -34,6 +34,6 @@
 
 module Virgil
   module Crypto
-    VERSION = '3.6.2'
+    VERSION = '3.6.3'
   end
 end

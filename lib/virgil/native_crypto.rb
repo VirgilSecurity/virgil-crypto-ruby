@@ -83,9 +83,10 @@ module NativeCrypto
 
   def self.gem_v
     # crypto core major version = gem major version - 1
+    # crypto core patch version = gem patch version - 1
     Virgil::Crypto::VERSION.scan(/(\d+\.\d+\.\d+)\D*\d*$/) do |postfix|
-      core_v = (postfix * '').gsub(/^(\d+)\.*/) {|gem_maj_ver|  "#{gem_maj_ver.to_i - 1}."}
-      return core_v
+      core_v = (postfix * '').gsub(/^(\d+)*/) {|gem_maj_ver|  "#{gem_maj_ver.to_i - 1}"}
+      return core_v.gsub!(/(\d+)$/) {|gem_patch_ver|  "#{gem_patch_ver.to_i - 1}"}
     end
     ''
   end
