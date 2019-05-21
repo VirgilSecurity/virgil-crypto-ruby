@@ -111,7 +111,7 @@ module Virgil
       # Converts the numeric value of each element of a current array of bytes to its
       # equivalent hexadecimal string representation.
       def to_hex
-        to_s.each_byte.map { |b| b.to_s(16) }.join
+        to_s.unpack('H*').first
       end
 
     end

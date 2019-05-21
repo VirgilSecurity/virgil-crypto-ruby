@@ -105,7 +105,7 @@ TThe Virgil Crypto is provided as a [gem](https://rubygems.org/) named [*virgil-
  or add the following line to your Gemfile:
  
  ```
- gem 'virgil-crypto', '~> 3.6.3'
+ gem 'virgil-crypto', '~> 3.6.4'
  ```
 and then run
 

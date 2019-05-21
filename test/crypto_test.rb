@@ -108,6 +108,16 @@ module Virgil
         assert_equal(@message_bytes, decrypted_message_bytes)
       end
 
+      def test_to_hex_and_back
+        data = Bytes.new([1, 2, 3])
+        fingerprint = @crypto.generate_hash(data)
+        hex_string = fingerprint.to_hex
+        rebuilt_fingerprint = Bytes.from_hex(hex_string)
+        assert_equal(
+            fingerprint,
+            rebuilt_fingerprint)
+      end
+
     end
   end
 end
