@@ -32,42 +32,50 @@
 # IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-require 'test_helper'
-
 module Virgil
   module Crypto
-    class CipherTest < Minitest::Test
-      def test_encrypts_and_decrypts_data
-        raw_data = Bytes.from_string("test")
-        key_pair1 = Core::VirgilKeyPair.generate(
-          Core::VirgilKeyPair::Type_FAST_EC_ED25519
-        )
-        key_pair2 = Core::VirgilKeyPair.generate(
-          Core::VirgilKeyPair::Type_FAST_EC_ED25519
-        )
-        cipher = Core::VirgilCipher.new
-        cipher.add_key_recipient(Bytes.from_string("1"), key_pair1.public_key)
-        cipher.add_key_recipient(Bytes.from_string("2"), key_pair2.public_key)
-        encrypted_data = cipher.encrypt(raw_data, true)
-        cipher = Core::VirgilCipher.new
-        decrypted_data1 = cipher.decrypt_with_key(
-          encrypted_data,
-          Bytes.from_string("1"),
-          key_pair1.private_key
-        )
-        assert_equal(
-          raw_data,
-          decrypted_data1
-        )
-        decrypted_data2 = cipher.decrypt_with_key(
-          encrypted_data,
-          Bytes.from_string("2"),
-          key_pair2.private_key
-        )
-        assert_equal(
-          raw_data,
-          decrypted_data2
-        )
+    # Enumeration containing supported Algorithms
+    class HashAlgorithm
+
+      # Exception raised when Unknown Algorithm passed to converting method
+      class UnknownAlgorithmException < StandardError
+        def initialize(algorithm)
+          @algorithm = algorithm
+          super
+        end
+
+        def to_s
+          "KeyPairType not found: #{@algorithm}"
+        end
+      end
+
+      MD5 = :MD5
+      SHA1 = :SHA1
+      SHA224 = :SHA224
+      SHA256 = :SHA256
+      SHA384 = :SHA384
+      SHA512 = :SHA512
+
+      ALGORITHMS_TO_NATIVE = {
+        MD5: Core::VirgilHash::Algorithm_MD5,
+        SHA1: Core::VirgilHash::Algorithm_SHA1,
+        SHA224: Core::VirgilHash::Algorithm_SHA224,
+        SHA256: Core::VirgilHash::Algorithm_SHA256,
+        SHA384: Core::VirgilHash::Algorithm_SHA384,
+        SHA512: Core::VirgilHash::Algorithm_SHA512
+      }
+
+
+      # Converts algorithm enum value to native value
+      # @param algorithm [HashAlgorithm] algorithm for conversion.
+      # @return [Integer] Native library algorithm id.
+      # @raise [UnknownAlgorithmException] if algorithm is not supported.
+      def self.convert_to_native(algorithm)
+        if ALGORITHMS_TO_NATIVE.has_key?(algorithm)
+          return ALGORITHMS_TO_NATIVE[algorithm]
+        end
+
+        raise UnknownAlgorithmException("KeyPairType not found: #{algorithm}")
       end
     end
   end

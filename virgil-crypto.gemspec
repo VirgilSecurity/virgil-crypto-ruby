@@ -10,11 +10,13 @@ abort "Windows is not supported yet." if OS.windows?
 Gem::Specification.new do |spec|
   spec.name          = "virgil-crypto"
   spec.version       = Virgil::Crypto::VERSION
-  spec.authors       = ["Dmitriy Dudkin", "Sergey Seroshtan"]
-  spec.email         = ["dudkin.dmitriy@gmail.com", "sseroshtan@virgilsecurity.com"]
+  spec.authors       = ["Dmitriy Dudkin", "Vasilina Bezuglaya", "Sergey Seroshtan"]
+  spec.email         = ["dudkin.dmitriy@gmail.com", "vbezuglaya@virgilsecurity.net", "sseroshtan@virgilsecurity.com"]
 
   spec.summary       = %q{Virgil Crypto library wrapper}
-  spec.description   = %q{Virgil Crypto library wrapper}
+  spec.description   = %q{virgil-crypto provides: Asymmetric Key Generation,
+                          Encryption/Decryption of data and streams,
+                          Generation/Verification of digital signatures,PFS (Perfect Forward Secrecy)}
   spec.homepage      = "http://github.com/VirgilSecurity/virgil-crypto-ruby"
   spec.licenses      = ['BSD-3-Clause']
 
@@ -24,10 +26,12 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
   spec.extensions = [ 'ext/rakefile.rb']
   spec.required_ruby_version = '>= 2.1.10'
-  spec.add_development_dependency "bundler", "~> 1.12"
+  spec.add_development_dependency "bundler", ">= 1.17.3"
   spec.add_development_dependency "rake-compiler", "~> 1.0"
   spec.add_development_dependency "rake", "~> 10.0"
   spec.add_development_dependency "minitest-reporters", "~> 1.1"
+  spec.add_development_dependency 'envyable', '~> 1.2'
+  spec.add_development_dependency "yard", "~> 0.9.8"
 
   current_dir = File.expand_path(File.dirname(__FILE__))
 

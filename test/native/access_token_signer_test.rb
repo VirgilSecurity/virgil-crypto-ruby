@@ -31,43 +31,27 @@
 # STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
 # IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-
-require 'test_helper'
-
 module Virgil
   module Crypto
-    class CipherTest < Minitest::Test
-      def test_encrypts_and_decrypts_data
-        raw_data = Bytes.from_string("test")
-        key_pair1 = Core::VirgilKeyPair.generate(
-          Core::VirgilKeyPair::Type_FAST_EC_ED25519
-        )
-        key_pair2 = Core::VirgilKeyPair.generate(
-          Core::VirgilKeyPair::Type_FAST_EC_ED25519
-        )
-        cipher = Core::VirgilCipher.new
-        cipher.add_key_recipient(Bytes.from_string("1"), key_pair1.public_key)
-        cipher.add_key_recipient(Bytes.from_string("2"), key_pair2.public_key)
-        encrypted_data = cipher.encrypt(raw_data, true)
-        cipher = Core::VirgilCipher.new
-        decrypted_data1 = cipher.decrypt_with_key(
-          encrypted_data,
-          Bytes.from_string("1"),
-          key_pair1.private_key
-        )
-        assert_equal(
-          raw_data,
-          decrypted_data1
-        )
-        decrypted_data2 = cipher.decrypt_with_key(
-          encrypted_data,
-          Bytes.from_string("2"),
-          key_pair2.private_key
-        )
-        assert_equal(
-          raw_data,
-          decrypted_data2
-        )
+    class AccessTokenSignerTest < Minitest::Test
+      def test_generate_token_signature_returns_valid_signature
+        signer = VirgilAccessTokenSigner.new
+        crypto = VirgilCrypto.new
+        key_pair = crypto.generate_keys
+        token_bytes = Bytes.from_string('AAAA.BBBB.CCCC')
+        signature = signer.generate_token_signature(token_bytes, key_pair.private_key)
+        assert_equal(true, signer.verify_token_signature(signature, token_bytes, key_pair.public_key))
+      end
+
+      def test_verify_token_signature_with_wrong_key_returns_false
+        crypto = VirgilCrypto.new
+        key_pair1 = crypto.generate_keys
+        key_pair2 = crypto.generate_keys
+        signer = VirgilAccessTokenSigner.new
+
+        token_bytes = Bytes.from_string('AAAA.BBBB.CCCC')
+        signature = signer.generate_token_signature(token_bytes, key_pair1.private_key)
+        assert_equal(false, signer.verify_token_signature(signature, token_bytes, key_pair2.public_key))
       end
     end
   end

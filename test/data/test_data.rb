@@ -31,43 +31,33 @@
 # STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
 # IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-
-require 'test_helper'
-
+require 'json'
 module Virgil
   module Crypto
-    class CipherTest < Minitest::Test
-      def test_encrypts_and_decrypts_data
-        raw_data = Bytes.from_string("test")
-        key_pair1 = Core::VirgilKeyPair.generate(
-          Core::VirgilKeyPair::Type_FAST_EC_ED25519
-        )
-        key_pair2 = Core::VirgilKeyPair.generate(
-          Core::VirgilKeyPair::Type_FAST_EC_ED25519
-        )
-        cipher = Core::VirgilCipher.new
-        cipher.add_key_recipient(Bytes.from_string("1"), key_pair1.public_key)
-        cipher.add_key_recipient(Bytes.from_string("2"), key_pair2.public_key)
-        encrypted_data = cipher.encrypt(raw_data, true)
-        cipher = Core::VirgilCipher.new
-        decrypted_data1 = cipher.decrypt_with_key(
-          encrypted_data,
-          Bytes.from_string("1"),
-          key_pair1.private_key
-        )
-        assert_equal(
-          raw_data,
-          decrypted_data1
-        )
-        decrypted_data2 = cipher.decrypt_with_key(
-          encrypted_data,
-          Bytes.from_string("2"),
-          key_pair2.private_key
-        )
-        assert_equal(
-          raw_data,
-          decrypted_data2
-        )
+    module TestData
+      DATA_DIR = File.expand_path('../', __FILE__)
+
+      class << self
+        def compatibility_data
+          @_compatibility_data ||= begin
+            path = File.join(DATA_DIR, 'crypto_compatibility_data.json')
+            raw_data = File.read(path)
+            JSON.parse(raw_data)
+          end
+        end
+
+        def original_data_file_path
+          @original_data_file_path ||= File.join(DATA_DIR, 'input.txt')
+        end
+
+        def encrypted_data_file_path
+          @encrypted_data_file_path ||= File.join(DATA_DIR, 'encrypted.txt')
+        end
+
+        def decrypted_data_file_path
+          @decrypted_data_file_path ||= File.join(DATA_DIR, 'output.txt')
+        end
+
       end
     end
   end

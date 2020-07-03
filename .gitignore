@@ -13,3 +13,4 @@ lib/virgil/crypto/virgil_crypto_ruby.bundle
 build*/
 .idea
 *.iml
+sample.rb

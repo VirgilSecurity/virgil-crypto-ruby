@@ -1,3 +1,37 @@
+# Copyright (C) 2015-2019 Virgil Security Inc.
+#
+# Lead Maintainer: Virgil Security Inc. <support@virgilsecurity.com>
+#
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#
+#   (1) Redistributions of source code must retain the above copyright
+#   notice, this list of conditions and the following disclaimer.
+#
+#   (2) Redistributions in binary form must reproduce the above copyright
+#   notice, this list of conditions and the following disclaimer in
+#   the documentation and/or other materials provided with the
+#   distribution.
+#
+#   (3) Neither the name of the copyright holder nor the names of its
+#   contributors may be used to endorse or promote products derived from
+#   this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE AUTHOR ''AS IS'' AND ANY EXPRESS OR
+# IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, bytes, OR PROFITS; OR BUSINESS INTERRUPTION)
+# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+# STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+# IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+
 require 'virgil/crypto/version'
 require 'virgil/os'
 require 'net/http'
@@ -6,95 +40,81 @@ require 'zlib'
 require 'fileutils'
 require 'rake'
 
-class NativeCrypto
-  LIBRARY_LIST_URL = "https://cdn.virgilsecurity.com/virgil-crypto/ruby/"
+module NativeCrypto
 
-  def self.load_library
-    library_file_name = 'virgil_crypto_ruby.'
-    library_file_name += required_library_os == 'linux' ? 'os' : 'bundle'
-    crypto_folder_path = "#{lib_path}/virgil/crypto"
-    download_library(get_library_path, library_file_name, crypto_folder_path)
+  LIBRARIES_URL = 'https://cdn.virgilsecurity.com/virgil-crypto/ruby/'.freeze
+
+  def self.download
+    file_name = "virgil_crypto_ruby.#{os_ext == 'linux' ? 'so' : 'bundle'}"
+    source_url = LIBRARIES_URL + library_path
+    puts "Downloading #{source_url}..."
+    system('mkdir -p tmp')
+    core_path = 'tmp/crypto_core.tar.gz'
+    download_archive(source_url, core_path)
+    extract_library(core_path, file_name)
   end
 
+  private
 
-  def self.get_library_path
-    body = get_https(LIBRARY_LIST_URL)
-    raise "Can't download native library. Please try later." unless body
-    ruby_version = RUBY_VERSION.sub(/\.[^\.]+$/, "")
-    href_template = /virgil-crypto-#{required_library_version}\b-.+\b?-ruby-#{ruby_version}-#{required_library_os}(?!tgz).+tgz"/
-    href_list = body.scan href_template
-
+  def self.library_path
+    list = libraries_list(URI(LIBRARIES_URL))
+    ruby_v = "-ruby-#{RUBY_VERSION.sub(/\.[^\.]+$/, '')}-#{os_ext}"
+    href_template = /virgil-crypto-#{gem_v}(?:\b-.+\b?)?#{ruby_v}(?!tgz).+tgz"/
+    href_list = list.scan href_template
     if href_list.last.nil?
-      raise "Sorry. Correct version #{required_library_version} of Native Library is missing."
+      raise "Sorry. Correct version #{gem_v} of Native Library is missing."
     end
-
     href_list.last.sub(/"$/, '')
-
   end
 
-  def self.get_https(url)
-    uri = URI(url)
-    Net::HTTP.start(uri.host, uri.port,
-                    :use_ssl => true) do |http|
+  def self.libraries_list(uri)
+    Net::HTTP.start(uri.host, uri.port, use_ssl: true) do |http|
       http.read_timeout = 100
       request = Net::HTTP::Get.new uri
       response = http.request request
-      case response
-        when Net::HTTPSuccess
-          response.body
-        when Net::HTTPServerError
-          warn "#{response.message}: try again later?"
-          nil
-        else
-          warn response.message
-          nil
+      if response.is_a?(Net::HTTPOK)
+        return response.body
+      else
+        raise "Can't download native library. Please try later."
       end
     end
+
   end
 
-  def self.required_library_version
-    Virgil::Crypto::VERSION.scan(/\d+\.\d+\.\d+(\D*\d*)$/) do |postfix|
-      return Virgil::Crypto::VERSION.sub(postfix.last, '')
+  def self.gem_v
+    # crypto core major version = gem major version - 1
+    # crypto core patch version = gem patch version - 1
+    Virgil::Crypto::VERSION.scan(/(\d+\.\d+\.\d+)\D*\d*$/) do |postfix|
+      core_v = (postfix * '').gsub(/^(\d+)*/) {|gem_maj_ver|  "#{gem_maj_ver.to_i - 1}"}
+      return core_v.gsub!(/(\d+)$/) {|gem_patch_ver|  "#{gem_patch_ver.to_i - 1}"}
     end
-    return ''
+    ''
   end
 
-  def self.required_library_os
+  def self.os_ext
     if OS.linux?
-      "linux"
+      'linux'
     elsif OS.mac?
-      "darwin"
+      'darwin'
     end
   end
 
-  def self.download_library(source_path, file_name, folder_path)
-
-    system('mkdir -p tmp')
-    archive_path = 'tmp/native_library.tar.gz'
-
-    open(archive_path, 'w') do |local_file|
-      begin
-        open(LIBRARY_LIST_URL + source_path) do |remote_file|
-          local_file.write(Zlib::GzipReader.new(remote_file).read)
-        end
-      rescue Exception => e
-        raise "Can't download native library from #{source_path} by reason: #{e}"
-      end
-    end
-
-    library_folder_name = source_path.sub('.tgz', '')
-
+  def self.extract_library(archive_path, file_name)
+    folder_name = library_path.sub('.tgz', '')
     system("tar xvf #{archive_path} -C tmp/")
 
-
-    system("cp tmp/#{library_folder_name}/lib/#{file_name} #{folder_path}/#{file_name}")
-    system('rm -rf tmp')
-
+    target_file_path = "#{File.expand_path(__dir__)}/crypto/"
+    system("cp tmp/#{folder_name}/lib/#{file_name} #{target_file_path}")
   end
 
-  def self.lib_path
-    File.expand_path('../../..', __FILE__) + "/lib"
+  def self.download_archive(source_url, archive_path)
+    File.open(archive_path, 'wb') do |file|
+      begin
+        archive = libraries_list(URI(source_url))
+        file.write(archive)
+      rescue StandardError => e
+        raise "Can't download native library from #{source_url}. Reason: #{e}"
+      end
+    end
   end
-
-
 end
