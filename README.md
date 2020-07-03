@@ -89,23 +89,23 @@ decrypted_data = crypto.decrypt(encrypted_data, receiver_private_key)
 # decrypt the encrypted data using a private key
 decrypted_message = Bytes.new(decrypted_data).to_s
 ```
-      
+
 Need more examples? Visit our [developer documentation](https://developer.virgilsecurity.com/docs/how-to#cryptography).
 
 ## Installation
 
 TThe Virgil Crypto is provided as a [gem](https://rubygems.org/) named [*virgil-crypto*](https://rubygems.org/gems/virgil-crypto) and available for Ruby 2.1 and newer. The package is distributed via *bundler* package manager.
- 
+
  To install the package use the command below:
- 
+
  ```
  gem install virgil-crypto
  ```
- 
+
  or add the following line to your Gemfile:
- 
+
  ```
- gem 'virgil-crypto', '~> 3.6.4'
+ gem 'virgil-crypto', '~> 3.6.5'
  ```
 and then run
 
