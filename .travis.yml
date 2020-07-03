@@ -9,8 +9,9 @@ before_install:
 - cd swig && ./autogen.sh && ./configure && make
 - sudo make install
 - cd ../
-- rvm install 2.6.1
-- rvm install 2.4.0
+- rvm install 2.5.8
+- rvm install 2.6.6
+- rvm install 2.7.1
 - if [ "TRAVIS_OS_NAME" == "linux" ]; then
   gem install bundler -v 1.17.3;
   fi
@@ -18,8 +19,9 @@ os:
 - linux
 - osx
 rvm:
-- 2.6.1
-- 2.4.0
+- 2.5.8
+- 2.6.6
+- 2.7.1
 script:
 - which cmake
 - cd ext; rake; cd ..
@@ -28,7 +30,7 @@ script:
 deploy:
   provider: pages
   skip_cleanup: true
-  github_token: $GITHUB_TOKEN # Set in travis-ci.org dashboard
+  github_token: $GITHUB_TOKEN # Set in travis-ci.com dashboard
   local_dir: docs
   on:
     branch: master
